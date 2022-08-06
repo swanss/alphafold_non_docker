@@ -74,7 +74,8 @@ pdb_seqres="$download_dir/pdb_seqres"
 
 download_dir=$(realpath "$download_dir")
 mkdir --parents "$download_dir"
-mkdir "$params" "$mgnify" "$pdb70" "$pdb_mmcif" "$mmcif_download_dir" "$mmcif_files" "$uniclust30" "$uniref90" "$uniprot" "$pdb_seqres"
+#mkdir "$params" "$mgnify" "$pdb70" "$pdb_mmcif" "$mmcif_download_dir" "$mmcif_files" "$uniclust30" "$uniref90" "$uniprot" "$pdb_seqres"
+mkdir "$params" "$uniprot" "$pdb_seqres"
 
 # Download AF2 parameters
 echo "Downloading AF2 parameters"
@@ -83,64 +84,74 @@ wget -P "$params" "https://storage.googleapis.com/alphafold/alphafold_params_202
 tar --extract --verbose --file="$params/$params_filename" --directory="$params" --preserve-permissions
 rm "$params/$params_filename"
 
-# Download BFD/Reduced BFD database
-if [[ "$download_mode" = "full_dbs" ]]; then
-    echo "Downloading BFD database"
-    bfd="$download_dir/bfd"
-    mkdir "$bfd"
-    bfd_filename="bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz"
-    wget -P "$bfd" "https://storage.googleapis.com/alphafold-databases/casp14_versions/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz"
-    tar --extract --verbose --file="$bfd/$bfd_filename" --directory="$bfd"
-    rm "$bfd/$bfd_filename"
-else
-    echo "Downloading reduced BFD database"
-    small_bfd="$download_dir/small_bfd"
-    mkdir "$small_bfd"
-    small_bfd_filename="bfd-first_non_consensus_sequences.fasta.gz"
-    wget -P "$small_bfd" "https://storage.googleapis.com/alphafold-databases/reduced_dbs/bfd-first_non_consensus_sequences.fasta.gz"
-    (cd "$small_bfd" && gunzip "$small_bfd/$small_bfd_filename")
-fi
+## Download BFD/Reduced BFD database
+#if [[ "$download_mode" = "full_dbs" ]]; then
+#    echo "Downloading BFD database"
+#    bfd="$download_dir/bfd"
+#    mkdir "$bfd"
+#    bfd_filename="bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz"
+#    wget -P "$bfd" "https://storage.googleapis.com/alphafold-databases/casp14_versions/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz"
+#    tar --extract --verbose --file="$bfd/$bfd_filename" --directory="$bfd"
+#    rm "$bfd/$bfd_filename"
+#else
+#    echo "Downloading reduced BFD database"
+#    small_bfd="$download_dir/small_bfd"
+#    mkdir "$small_bfd"
+#    small_bfd_filename="bfd-first_non_consensus_sequences.fasta.gz"
+#    wget -P "$small_bfd" "https://storage.googleapis.com/alphafold-databases/reduced_dbs/bfd-first_non_consensus_sequences.fasta.gz"
+#    (cd "$small_bfd" && gunzip "$small_bfd/$small_bfd_filename")
+#fi
+#
+## Download MGnify database
+#echo "Downloading MGnify database"
+#mgnify_filename="mgy_clusters_2018_12.fa.gz"
+#wget -P "$mgnify" "https://storage.googleapis.com/alphafold-databases/casp14_versions/${mgnify_filename}"
+#(cd "$mgnify" && gunzip "$mgnify/$mgnify_filename")
+#
+## Download PDB70 database
+#echo "Downloading PDB70 database"
+#pdb70_filename="pdb70_from_mmcif_200401.tar.gz"
+#wget -P "$pdb70" "http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/old-releases/${pdb70_filename}"
+#tar --extract --verbose --file="$pdb70/$pdb70_filename" --directory="$pdb70"
+#rm "$pdb70/$pdb70_filename"
+#
+## Download PDB obsolete data
+#wget -P "$pdb_mmcif" "ftp://ftp.wwpdb.org/pub/pdb/data/status/obsolete.dat"
+#
+## Download PDB mmCIF database
+#echo "Downloading PDB mmCIF database"
+#rsync --recursive --links --perms --times --compress --info=progress2 --delete --port=33444 rsync.rcsb.org::ftp_data/structures/divided/mmCIF/ "$mmcif_download_dir"
+#find "$mmcif_download_dir/" -type f -iname "*.gz" -exec gunzip {} +
+#find "$mmcif_download_dir" -type d -empty -delete
+#
+#for sub_dir in "$mmcif_download_dir"/*; do
+#  mv "$sub_dir/"*.cif "$mmcif_files"
+#done
+#
+#find "$mmcif_download_dir" -type d -empty -delete
+#
+## Download Uniclust30 database
+#echo "Downloading Uniclust30 database"
+#uniclust30_filename="uniclust30_2018_08_hhsuite.tar.gz"
+#wget -P "$uniclust30" "https://storage.googleapis.com/alphafold-databases/casp14_versions/${uniclust30_filename}"
+#tar --extract --verbose --file="$uniclust30/$uniclust30_filename" --directory="$uniclust30"
+#rm "$uniclust30/$uniclust30_filename"
+#
+## Download Uniref90 database
+#echo "Downloading Unifef90 database"
+#uniref90_filename="uniref90.fasta.gz"
+#wget -P "$uniref90" "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/${uniref90_filename}"
+#(cd "$uniref90" && gunzip "$uniref90/$uniref90_filename")
 
-# Download MGnify database
-echo "Downloading MGnify database"
-mgnify_filename="mgy_clusters_2018_12.fa.gz"
-wget -P "$mgnify" "https://storage.googleapis.com/alphafold-databases/casp14_versions/${mgnify_filename}"
-(cd "$mgnify" && gunzip "$mgnify/$mgnify_filename")
-
-# Download PDB70 database
-echo "Downloading PDB70 database"
-pdb70_filename="pdb70_from_mmcif_200401.tar.gz"
-wget -P "$pdb70" "http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/old-releases/${pdb70_filename}"
-tar --extract --verbose --file="$pdb70/$pdb70_filename" --directory="$pdb70"
-rm "$pdb70/$pdb70_filename"
-
-# Download PDB obsolete data
-wget -P "$pdb_mmcif" "ftp://ftp.wwpdb.org/pub/pdb/data/status/obsolete.dat"
-
-# Download PDB mmCIF database
-echo "Downloading PDB mmCIF database"
-rsync --recursive --links --perms --times --compress --info=progress2 --delete --port=33444 rsync.rcsb.org::ftp_data/structures/divided/mmCIF/ "$mmcif_download_dir"
-find "$mmcif_download_dir/" -type f -iname "*.gz" -exec gunzip {} +
-find "$mmcif_download_dir" -type d -empty -delete
-
-for sub_dir in "$mmcif_download_dir"/*; do
-  mv "$sub_dir/"*.cif "$mmcif_files"
-done
-
-find "$mmcif_download_dir" -type d -empty -delete
-
-# Download Uniclust30 database
-echo "Downloading Uniclust30 database"
-uniclust30_filename="uniclust30_2018_08_hhsuite.tar.gz"
-wget -P "$uniclust30" "https://storage.googleapis.com/alphafold-databases/casp14_versions/${uniclust30_filename}"
-tar --extract --verbose --file="$uniclust30/$uniclust30_filename" --directory="$uniclust30"
-rm "$uniclust30/$uniclust30_filename"
-
-# Download Uniref90 database
-echo "Downloading Unifef90 database"
-uniref90_filename="uniref90.fasta.gz"
-wget -P "$uniref90" "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/${uniref90_filename}"
-(cd "$uniref90" && gunzip "$uniref90/$uniref90_filename")
+# Symlink existing databases
+ln -s $mgnify
+ln -s $pdb70
+ln -s $pdb_mmcif
+ln -s $mmcif_download_dir
+ln -s $mmcif_files
+ln -s $uniclust30
+ln -s $uniref90
+ls -s $uniprot
 
 # Download Uniprot database
 echo "Downloading Uniprot (TrEMBL and Swiss-Prot) database"
